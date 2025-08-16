@@ -7,3 +7,15 @@ __pycache__/
 temp_* 
 *.wav 
 *.mp3 
+# Ignore Streamlit secrets
+.streamlit/secrets.toml
+
+# Ignore any other sensitive files
+*.env
+*.key
+*.pem
+
+# Ignore system files (optional)
+__pycache__/
+*.pyc
+.DS_Store
