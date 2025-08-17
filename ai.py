@@ -28,7 +28,7 @@ def load_mail_credentials():
 # -------------------------
 def transcribe_audio(file_path):
     try:
-        model = whisper.load("base")  # tiny/small/medium/large
+        model = whisper.load_model("base")  # tiny/small/medium/large
         result = model.transcribe(file_path)
         return result["text"]
     except Exception as e:
