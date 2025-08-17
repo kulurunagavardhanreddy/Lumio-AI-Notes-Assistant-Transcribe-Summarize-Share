@@ -2,13 +2,13 @@ import streamlit as st
 import os
 import tempfile
 from transformers import pipeline
-from pydub import AudioSegment
 import whisper
 import re
 import smtplib
 from email.message import EmailMessage
 from datetime import datetime
 import warnings
+import shutil
 
 # Suppress the specific Whisper FP16 warning which is harmless on CPU
 warnings.filterwarnings("ignore", message="FP16 is not supported on CPU")
@@ -40,7 +40,7 @@ def load_models():
     try:
         # Load the summarization pipeline
         summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-        # Load the Whisper model
+        # Load the Whisper model. It relies on the ffmpeg system package for audio decoding.
         whisper_model = whisper.load_model("base")
         return summarizer, whisper_model
     except Exception as e:
@@ -57,7 +57,7 @@ def log_action(message):
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {message}")
 
 def save_temp_audio(uploaded_file):
-    """Saves the uploaded audio file to a temporary location and converts it to WAV."""
+    """Saves the uploaded audio file to a temporary location."""
     try:
         # Use tempfile to create a secure temporary directory and file
         temp_dir = tempfile.mkdtemp()
@@ -65,18 +65,10 @@ def save_temp_audio(uploaded_file):
         
         with open(original_temp_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
-
-        # Convert the audio to WAV using pydub
-        sound = AudioSegment.from_file(original_temp_path)
-        wav_path = os.path.join(temp_dir, f"{os.path.basename(uploaded_file.name).split('.')[0]}.wav")
-        sound.export(wav_path, format="wav")
         
-        # Clean up the original uploaded file
-        os.remove(original_temp_path)
-        
-        return wav_path, temp_dir
+        return original_temp_path, temp_dir
     except Exception as e:
-        st.error(f"Error converting audio file. Make sure it's a valid audio format: {e}")
+        st.error(f"Error saving audio file: {e}")
         return None, None
 
 def transcribe_audio(audio_path):
@@ -85,6 +77,8 @@ def transcribe_audio(audio_path):
         return "[ERROR: Whisper model not loaded]"
     try:
         log_action(f"Starting transcription for {audio_path}")
+        # Pass the original file path directly to the transcribe function.
+        # Whisper uses a backend that can handle various formats with ffmpeg.
         result = whisper_model.transcribe(audio_path)
         log_action("Transcription complete.")
         return result["text"]
@@ -181,11 +175,7 @@ def cleanup_temp_files():
     """Removes temporary files after use."""
     if st.session_state.audio_temp_dir and os.path.exists(st.session_state.audio_temp_dir):
         try:
-            for file_name in os.listdir(st.session_state.audio_temp_dir):
-                file_path = os.path.join(st.session_state.audio_temp_dir, file_name)
-                if os.path.isfile(file_path):
-                    os.remove(file_path)
-            os.rmdir(st.session_state.audio_temp_dir)
+            shutil.rmtree(st.session_state.audio_temp_dir, ignore_errors=True)
             log_action(f"Cleaned up temporary directory: {st.session_state.audio_temp_dir}")
         except Exception as e:
             st.error(f"Error during cleanup: {e}")
@@ -214,11 +204,6 @@ if uploaded_file:
                 st.session_state.transcription = transcribe_audio(temp_file_path)
                 st.session_state.summary = ""
                 log_action("Audio has been transcribed.")
-                
-        # To make sure temp files are cleaned up on app reruns
-        st.session_state.temp_file_path = temp_file_path
-        st.session_state.temp_dir = temp_dir
-
 
 # -----------------------------
 # Process Text Input
