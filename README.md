@@ -46,7 +46,7 @@ pip install -r requirements.txt
 MAIL_SENDER_EMAIL = "your-email@gmail.com"
 MAIL_SENDER_PASS = "your-app-password"
 
-* **Note: For Gmail, you might need to generate an App Password.
+* Note: For Gmail, you might need to generate an App Password.
 
 ### 4. Run the app
 
