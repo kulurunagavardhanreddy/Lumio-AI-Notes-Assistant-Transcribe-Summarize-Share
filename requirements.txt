@@ -1,9 +1,9 @@
-streamlit
-rich
-transformers
-torch==2.8.0
-torchaudio==2.8.0
-numpy
-PyYAML
-openai-whisper
+torch>=2.1.0
+torchaudio>=2.1.0
+transformers>=4.35.0
+openai-whisper>=20250625
 ffmpeg-python
+toml
+PyYAML
+rich
+streamlit==1.48.1
