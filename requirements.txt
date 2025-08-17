@@ -1,18 +1,15 @@
+# Audio & ML
+torch>=2.5.1
 torchaudio>=2.1.0
-<<<<<<< HEAD
 transformers>=4.35.0
-openai-whisper
-=======
 openai-whisper>=20250625
-ffmpeg-python
->>>>>>> fd08685 (Update Streamlit app: added new summarization logic, email form, and logging)
-toml
-PyYAML
-rich
-streamlit==1.48.1
-<<<<<<< HEAD
-=======
-torch==2.5.1
-transformers==4.41.0
-sympy==1.13.1
->>>>>>> fd08685 (Update Streamlit app: added new summarization logic, email form, and logging)
+ffmpeg-python>=1.0.0
+
+# Utilities
+toml>=0.10.2
+PyYAML>=6.0
+rich>=14.1.0
+sympy>=1.13.1
+
+# Web / Streamlit
+streamlit>=1.48.1
