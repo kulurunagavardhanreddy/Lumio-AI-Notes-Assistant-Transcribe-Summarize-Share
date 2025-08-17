@@ -46,7 +46,7 @@ pip install -r requirements.txt
 MAIL_SENDER_EMAIL = "your-email@gmail.com"
 MAIL_SENDER_PASS = "your-app-password"
 
-* ** Note: For Gmail, you might need to generate an App Password.
+* **Note: For Gmail, you might need to generate an App Password.
 
 ### 4. Run the app
 
@@ -56,13 +56,13 @@ streamlit run app.py
 
 #### Usage
 
-* ** 1. Upload an audio file or paste your text.
+* **1. Upload an audio file or paste your text.
 
-* ** 2. Click Transcribe Audio (for audio files).
+* **2. Click Transcribe Audio (for audio files).
 
-* ** 3. Click Generate Summary to get a readable summary in bullet points.
+* **3. Click Generate Summary to get a readable summary in bullet points.
 
-* ** 4. Optionally, enter a recipient email and click Send Email.
+* **4. Optionally, enter a recipient email and click Send Email.
 
 ### Links
 
@@ -75,9 +75,11 @@ GitHub Repository: https://github.com/kulurunagavardhanreddy/Lumio-AI-Notes-Assi
 ```
 facebook/wav2vec2-base-960h
 ```
+
 ```
 facebook/bart-large-cnn
 ```
+
 ```
 Streamlit: https://streamlit.io/
 ```
