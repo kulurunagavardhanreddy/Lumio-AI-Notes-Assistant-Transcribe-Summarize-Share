@@ -56,13 +56,13 @@ streamlit run app.py
 
 #### Usage
 
-* **1. Upload an audio file or paste your text.
+* 1. Upload an audio file or paste your text.
 
-* **2. Click Transcribe Audio (for audio files).
+* 2. Click Transcribe Audio (for audio files).
 
-* **3. Click Generate Summary to get a readable summary in bullet points.
+* 3. Click Generate Summary to get a readable summary in bullet points.
 
-* **4. Optionally, enter a recipient email and click Send Email.
+* 4. Optionally, enter a recipient email and click Send Email.
 
 ### Links
 
