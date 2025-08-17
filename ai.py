@@ -4,19 +4,13 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
-import toml
-import yaml
-import ffmpeg
 from transformers import pipeline
 
 # -------------------------
-# Load email credentials from config.toml
+# Load email credentials from Streamlit secrets
 # -------------------------
-CONFIG_FILE = ".streamlit/config.toml"
-
 def load_mail_credentials():
     try:
-        # Fetch from Streamlit Secrets
         sender_email = st.secrets["mail"]["MAIL_SENDER_EMAIL"]
         sender_password = st.secrets["mail"]["MAIL_SENDER_PASS"]
         return sender_email, sender_password
@@ -39,11 +33,6 @@ def transcribe_audio(file_path):
 summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 
 def summarize_text(text, max_length=130, min_length=30, bullet_style=True):
-    """
-    Summarize text using Hugging Face pipeline.
-    - max_length & min_length control summary length
-    - bullet_style formats the summary in bullet points
-    """
     try:
         summary_list = summarizer(
             text,
@@ -57,7 +46,6 @@ def summarize_text(text, max_length=130, min_length=30, bullet_style=True):
         summary = summary_list[0]["summary_text"]
 
         if bullet_style:
-            # Split sentences and add bullets
             sentences = summary.split(". ")
             summary = "\n".join([f"• {s.strip()}" for s in sentences if s])
         return summary
@@ -81,11 +69,6 @@ def send_email(recipient, subject, body, sender_email, sender_password):
     except Exception as e:
         return str(e)
 
-def save_text_to_file(text, filename):
-    with open(filename, "w") as f:
-        f.write(text)
-    return filename
-
 # -------------------------
 # Initialize session state
 # -------------------------
@@ -93,12 +76,14 @@ if "transcription" not in st.session_state:
     st.session_state.transcription = ""
 if "summary" not in st.session_state:
     st.session_state.summary = ""
+if "summary_generated" not in st.session_state:
+    st.session_state.summary_generated = False
 
 # -------------------------
 # Streamlit UI
 # -------------------------
 st.title("📝 AI Notes Summarizer & Sharer")
-st.write("Upload audio or paste text → transcribe/summarize → share via email.")
+st.write("Upload audio or paste text → transcribe/summarize → regenerate if needed → share via email.")
 
 uploaded_file = st.file_uploader("Upload Audio", type=["wav", "mp3", "m4a", "flac", "aac", "ogg"])
 text_input = st.text_area("Or Paste Text to Summarize", height=150)
@@ -122,6 +107,7 @@ if uploaded_file is not None:
         st.session_state.summary = summarize_text(
             st.session_state.transcription, max_length=max_len, min_length=min_len, bullet_style=bullet_mode
         )
+        st.session_state.summary_generated = True
 
 # -------------------------
 # Summarize Pasted Text
@@ -131,6 +117,7 @@ if text_input.strip() != "" and st.button("Summarize Pasted Text"):
     st.session_state.summary = summarize_text(
         st.session_state.transcription, max_length=max_len, min_length=min_len, bullet_style=bullet_mode
     )
+    st.session_state.summary_generated = True
 
 # -------------------------
 # Show transcription and summary
@@ -140,15 +127,24 @@ if st.session_state.transcription:
     st.write(st.session_state.transcription)
     st.download_button("Download Transcription", data=st.session_state.transcription, file_name="transcription.txt")
 
-if st.session_state.summary:
+# -------------------------
+# Summary Section with Regenerate Option
+# -------------------------
+if st.session_state.summary_generated:
     st.subheader("Summary")
     st.write(st.session_state.summary)
     st.download_button("Download Summary", data=st.session_state.summary, file_name="summary.txt")
 
+    if st.button("Regenerate Summary"):
+        st.session_state.summary = summarize_text(
+            st.session_state.transcription, max_length=max_len, min_length=min_len, bullet_style=bullet_mode
+        )
+        st.success("Summary regenerated!")
+
 # -------------------------
 # Send Summary via Email
 # -------------------------
-if st.session_state.summary:
+if st.session_state.summary_generated:
     st.subheader("Send Summary via Email")
     recipient = st.text_input("Recipient Email", key="recipient_input")
     subject = st.text_input("Email Subject", "Your Summary", key="subject_input")
@@ -156,7 +152,7 @@ if st.session_state.summary:
     sender_email, sender_password = load_mail_credentials()
 
     if sender_email is None or sender_password is None:
-        st.error("Cannot send email: Sender credentials not loaded from config.toml")
+        st.error("Cannot send email: Sender credentials not loaded from secrets")
     elif st.button("Send Email"):
         result = send_email(recipient, subject, st.session_state.summary, sender_email, sender_password)
         if result == True:
