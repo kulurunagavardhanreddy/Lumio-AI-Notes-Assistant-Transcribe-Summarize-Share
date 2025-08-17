@@ -3,7 +3,7 @@
 A simple and fast **Audio & Text Summarizer** using Hugging Face Transformers and Streamlit.  
 Upload audio files or paste text, generate a summary in bullet points, and optionally email it.
 
-[View Demo on Streamlit](https://share.streamlit.io/kulurunagavardhanreddy/Lumio-AI-Notes-Assistant-Transcribe-Summarize-Share/main/app.py)
+[View Demo on Streamlit](https://lumio-ai-notes-assistant-transcribe-summarize-share-xbs2nyk5lg.streamlit.app/)
 
 ---
 
@@ -22,7 +22,7 @@ Upload audio files or paste text, generate a summary in bullet points, and optio
 - [Streamlit](https://streamlit.io/) – Interactive web app framework.  
 - [Transformers](https://huggingface.co/transformers/) – Hugging Face pipeline for ASR and summarization.  
 - [Python](https://www.python.org/) – Backend language.  
-- SMTP (Gmail) – Send emails with summaries.  
+- [SMTP] (Gmail) – Send emails with summaries.  
 
 ---
 
@@ -46,7 +46,7 @@ pip install -r requirements.txt
 MAIL_SENDER_EMAIL = "your-email@gmail.com"
 MAIL_SENDER_PASS = "your-app-password"
 
-*** Note: For Gmail, you might need to generate an App Password.
+* ** Note: For Gmail, you might need to generate an App Password.
 
 ### 4. Run the app
 
@@ -56,13 +56,13 @@ streamlit run app.py
 
 #### Usage
 
-** 1. Upload an audio file or paste your text.
+* ** 1. Upload an audio file or paste your text.
 
-** 2. Click Transcribe Audio (for audio files).
+* ** 2. Click Transcribe Audio (for audio files).
 
-** 3. Click Generate Summary to get a readable summary in bullet points.
+* ** 3. Click Generate Summary to get a readable summary in bullet points.
 
-** 4. Optionally, enter a recipient email and click Send Email.
+* ** 4. Optionally, enter a recipient email and click Send Email.
 
 ### Links
 
