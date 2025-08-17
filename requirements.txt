@@ -1,8 +1,8 @@
 streamlit
 rich
 transformers
-torch==2.2.0
-torchaudio==2.2.0
+torch
+torchaudio
 numpy
 PyYAML
 whisper 
