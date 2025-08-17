@@ -6,6 +6,7 @@ from email.mime.multipart import MIMEMultipart
 import os
 import toml
 import yaml
+import ffmpeg
 from transformers import pipeline
 
 # -------------------------
