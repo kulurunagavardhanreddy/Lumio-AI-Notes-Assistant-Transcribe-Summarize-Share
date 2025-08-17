@@ -5,4 +5,4 @@ torch==2.2.0
 torchaudio==2.2.0
 numpy
 PyYAML
-whisper @ git+https://github.com/openai/whisper.git
+whisper 
