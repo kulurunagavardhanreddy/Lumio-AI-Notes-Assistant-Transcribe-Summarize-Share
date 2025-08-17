@@ -86,9 +86,18 @@ st.write("Upload audio or paste text → transcribe/summarize → regenerate if 
 uploaded_file = st.file_uploader("Upload Audio", type=["wav", "mp3", "m4a", "flac", "aac", "ogg"])
 text_input = st.text_area("Or Paste Text to Summarize", height=150)
 
-max_len = st.slider("Max Summary Length", min_value=50, max_value=500, value=130)
-min_len = st.slider("Min Summary Length", min_value=10, max_value=200, value=30)
-bullet_mode = st.checkbox("Format Summary in Bullet Points", value=True)
+# -------------------------
+# Conditional sliders & checkbox
+# -------------------------
+if uploaded_file or text_input.strip() != "":
+    max_len = st.slider("Max Summary Length", min_value=50, max_value=500, value=130)
+    min_len = st.slider("Min Summary Length", min_value=10, max_value=200, value=30)
+    bullet_mode = st.checkbox("Format Summary in Bullet Points", value=True)
+else:
+    st.info("📌 Please upload an audio file or paste some text to enable summary settings.")
+    max_len = 130
+    min_len = 30
+    bullet_mode = True
 
 # -------------------------
 # Audio Upload Flow
