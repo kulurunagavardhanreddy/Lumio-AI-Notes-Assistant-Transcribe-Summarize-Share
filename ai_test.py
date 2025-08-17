@@ -8,6 +8,10 @@ import smtplib
 from email.message import EmailMessage
 from datetime import datetime
 
+import warnings
+warnings.filterwarnings("ignore", message="FP16 is not supported on CPU")
+
+
 # -----------------------------
 # Load email credentials from secrets.toml
 # -----------------------------
