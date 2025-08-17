@@ -5,9 +5,10 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
 from transformers import pipeline
+import random
 
 # -------------------------
-# Load email credentials from Streamlit secrets
+# Load email credentials
 # -------------------------
 def load_mail_credentials():
     try:
@@ -23,7 +24,7 @@ def load_mail_credentials():
 # -------------------------
 def transcribe_audio(file_path):
     try:
-        model = whisper.load_model("base")  # tiny/small/medium/large
+        model = whisper.load_model("base")
         result = model.transcribe(file_path)
         return result["text"]
     except Exception as e:
@@ -34,13 +35,17 @@ summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 
 def summarize_text(text, max_length=130, min_length=30, bullet_style=True):
     try:
+        # Introduce slight randomness to avoid duplicate summaries
+        top_k = random.randint(40, 60)
+        top_p = round(random.uniform(0.9, 0.95), 2)
+
         summary_list = summarizer(
             text,
             max_length=max_length,
             min_length=min_length,
             do_sample=True,
-            top_k=50,
-            top_p=0.95,
+            top_k=top_k,
+            top_p=top_p,
             num_return_sequences=1
         )
         summary = summary_list[0]["summary_text"]
@@ -70,7 +75,7 @@ def send_email(recipient, subject, body, sender_email, sender_password):
         return str(e)
 
 # -------------------------
-# Initialize session state
+# Session state initialization
 # -------------------------
 if "transcription" not in st.session_state:
     st.session_state.transcription = ""
@@ -93,34 +98,30 @@ min_len = st.slider("Min Summary Length", min_value=10, max_value=200, value=30)
 bullet_mode = st.checkbox("Format Summary in Bullet Points", value=True)
 
 # -------------------------
-# Audio Transcription
+# Show Transcribe button only after input
 # -------------------------
-if uploaded_file is not None:
-    temp_file_path = f"./temp_{uploaded_file.name}"
-    with open(temp_file_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())
+if uploaded_file or text_input.strip() != "":
+    if uploaded_file:
+        temp_file_path = f"./temp_{uploaded_file.name}"
+        with open(temp_file_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+        st.audio(temp_file_path)
 
-    st.audio(temp_file_path)
+    if st.button("Transcribe & Summarize"):
+        # Transcription
+        if uploaded_file:
+            st.session_state.transcription = transcribe_audio(temp_file_path)
+        else:
+            st.session_state.transcription = text_input
 
-    if st.button("Transcribe & Summarize Audio"):
-        st.session_state.transcription = transcribe_audio(temp_file_path)
+        # Summary
         st.session_state.summary = summarize_text(
             st.session_state.transcription, max_length=max_len, min_length=min_len, bullet_style=bullet_mode
         )
         st.session_state.summary_generated = True
 
 # -------------------------
-# Summarize Pasted Text
-# -------------------------
-if text_input.strip() != "" and st.button("Summarize Pasted Text"):
-    st.session_state.transcription = text_input
-    st.session_state.summary = summarize_text(
-        st.session_state.transcription, max_length=max_len, min_length=min_len, bullet_style=bullet_mode
-    )
-    st.session_state.summary_generated = True
-
-# -------------------------
-# Show transcription and summary
+# Display transcription
 # -------------------------
 if st.session_state.transcription:
     st.subheader("Transcription")
@@ -128,7 +129,7 @@ if st.session_state.transcription:
     st.download_button("Download Transcription", data=st.session_state.transcription, file_name="transcription.txt")
 
 # -------------------------
-# Summary Section with Regenerate Option
+# Display summary and regenerate
 # -------------------------
 if st.session_state.summary_generated:
     st.subheader("Summary")
@@ -142,7 +143,7 @@ if st.session_state.summary_generated:
         st.success("Summary regenerated!")
 
 # -------------------------
-# Send Summary via Email
+# Send email section
 # -------------------------
 if st.session_state.summary_generated:
     st.subheader("Send Summary via Email")
