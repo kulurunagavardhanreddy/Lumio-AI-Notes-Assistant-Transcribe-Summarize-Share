@@ -103,15 +103,17 @@ def chunk_text(text, max_tokens=800):
 
 def summarize_text(text, max_length=130, min_length=30, bullet_style=True):
     """
-    Generates a summary of the provided text.
-    Uses do_sample=True to generate a different summary each time.
+    Generates a summary of the provided text safely.
     """
     if not summarizer:
         return "[ERROR: Summarization model not loaded]"
     try:
         summary_chunks = []
-        text_chunks = chunk_text(text, max_tokens=800)
+        text_chunks = chunk_text(text, max_tokens=500)  # safer chunk size
+
         for chunk in text_chunks:
+            if not chunk.strip():
+                continue
             summary_list = summarizer(
                 chunk,
                 max_length=max_length,
@@ -120,15 +122,22 @@ def summarize_text(text, max_length=130, min_length=30, bullet_style=True):
                 temperature=0.7,
                 top_p=0.9
             )
-            summary_chunks.append(summary_list[0]["summary_text"])
+            if summary_list and "summary_text" in summary_list[0]:
+                summary_chunks.append(summary_list[0]["summary_text"])
+
+        if not summary_chunks:
+            return "[ERROR: No summary could be generated]"
+
         combined_summary = " ".join(summary_chunks)
 
         if bullet_style:
             sentences = re.split(r'(?<=[.!?]) +', combined_summary)
             combined_summary = "\n".join([f"• {s.strip()}" for s in sentences if len(s.strip()) > 20])
         return combined_summary
+
     except Exception as e:
         return f"[ERROR: Summarization failed] {e}"
+
 
 def send_email(recipient, subject, body):
     """Sends an email with the summary."""
