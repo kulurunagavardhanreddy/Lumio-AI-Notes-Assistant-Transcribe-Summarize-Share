@@ -8,4 +8,3 @@ PyYAML
 rich
 streamlit==1.48.1
 soundfile
-pydub==0.25.1
