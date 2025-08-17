@@ -1,9 +1,8 @@
 streamlit
-whisper @ git+https://github.com/openai/whisper.git
 rich
 transformers
-torch
-torchaudio
+torch==2.2.0
+torchaudio==2.2.0
 numpy
-toml
 PyYAML
+whisper @ git+https://github.com/openai/whisper.git
