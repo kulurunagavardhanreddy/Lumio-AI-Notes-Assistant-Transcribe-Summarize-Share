@@ -16,9 +16,9 @@ CONFIG_FILE = ".streamlit/config.toml"
 
 def load_mail_credentials():
     try:
-        config = toml.load(CONFIG_FILE)
-        sender_email = config["mail"]["MAIL_SENDER_EMAIL"]
-        sender_password = config["mail"]["MAIL_SENDER_PASS"]
+        # Fetch from Streamlit Secrets
+        sender_email = st.secrets["mail"]["MAIL_SENDER_EMAIL"]
+        sender_password = st.secrets["mail"]["MAIL_SENDER_PASS"]
         return sender_email, sender_password
     except Exception as e:
         st.error(f"Error loading mail credentials: {e}")
