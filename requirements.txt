@@ -2,6 +2,7 @@ torch>=2.1.0
 torchaudio>=2.1.0
 transformers>=4.35.0
 openai-whisper>=20250625
+ffmpeg
 ffmpeg-python
 toml
 PyYAML
