@@ -6,4 +6,3 @@ torchaudio==2.8.0
 numpy
 PyYAML
 openai-whisper
-ffmpeg
