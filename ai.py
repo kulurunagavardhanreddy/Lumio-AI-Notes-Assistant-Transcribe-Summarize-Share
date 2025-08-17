@@ -27,6 +27,8 @@ def transcribe_audio(file_path):
         model = whisper.load_model("base")
         result = model.transcribe(file_path)
         return result["text"]
+    except FileNotFoundError:
+        return "[ERROR: Transcription failed] ffmpeg not found. Please install ffmpeg."
     except Exception as e:
         return f"[ERROR: Transcription failed] {e}"
 
