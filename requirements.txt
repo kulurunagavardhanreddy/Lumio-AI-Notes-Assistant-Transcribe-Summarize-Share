@@ -3,7 +3,7 @@ torch>=2.5.1
 torchaudio>=2.1.0
 transformers>=4.35.0
 openai-whisper>=20250625
-ffmpeg-python>=1.0.0
+ffmpeg-python<=0.2.0  # fixed to latest available version
 
 # Utilities
 toml>=0.10.2
