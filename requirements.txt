@@ -1,11 +1,9 @@
 torch>=2.5.1
-torchaudio>=2.1.0
 transformers>=4.35.0
 openai-whisper>=20250625
-ffmpeg-python<=0.2.0
 pydub>=0.25.1
+ffmpeg-python<=0.2.0
 streamlit>=1.48.1
-toml>=0.10.2
-PyYAML>=6.0
 rich>=14.1.0
-sympy>=1.13.1
+numba==0.56.4
+llvmlite==0.39.1
