@@ -7,6 +7,11 @@ import smtplib
 from email.message import EmailMessage
 from datetime import datetime
 import shutil
+import warnings
+
+# Suppress the specific audio pipeline warnings
+warnings.filterwarnings("ignore", message="Some weights of the model checkpoint at facebook/wav2vec2-base-960h were not used")
+warnings.filterwarnings("ignore", message="You are using a model of type wav2vec2_ctc to automatically transcribe audio")
 
 # -----------------------------
 # Load email credentials from secrets.toml
@@ -33,9 +38,9 @@ st.write("Upload an audio file for transcription or paste your text directly to 
 def load_models():
     """Loads the summarization and audio-to-text models and caches them."""
     try:
-        # Load the summarization pipeline
+        # Load the summarization pipeline from Hugging Face
         summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-        # Load the audio-to-text pipeline, which is more compatible with newer Python versions
+        # Load the audio-to-text pipeline from Hugging Face
         audio_transcriber = pipeline("automatic-speech-recognition", model="facebook/wav2vec2-base-960h")
         return summarizer, audio_transcriber
     except Exception as e:
