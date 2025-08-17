@@ -1,8 +1,10 @@
 streamlit
 rich
 transformers
-torch
-torchaudio
-numpy
+# Use a compatible and available version of torch
+torch==2.5.0
+torchaudio==2.5.0
+numpy==2.3.2
 PyYAML
-whisper 
+# This is the correct package for the whisper model
+openai-whisper==20231117
