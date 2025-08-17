@@ -19,3 +19,5 @@ temp_*
 __pycache__/
 *.pyc
 .DS_Store
+.streamlit/secrets.toml
+.streamlit/config.toml
