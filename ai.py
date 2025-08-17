@@ -30,7 +30,7 @@ def transcribe_audio(file_path):
     except Exception as e:
         return f"[ERROR: Transcription failed] {e}"
 
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
 
 def summarize_text(text, max_length=130, min_length=30, bullet_style=True):
     try:
