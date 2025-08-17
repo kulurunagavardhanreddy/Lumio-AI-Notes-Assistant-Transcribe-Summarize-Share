@@ -7,6 +7,9 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+# Streamlit Cloud usually installs ffmpeg to /usr/bin
+os.environ["PATH"] += os.pathsep + "/usr/bin"
+
 # -------------------------
 # Load email credentials
 # -------------------------
