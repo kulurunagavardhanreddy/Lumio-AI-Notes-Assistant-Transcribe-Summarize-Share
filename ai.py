@@ -30,14 +30,12 @@ def transcribe_audio(file_path):
     except Exception as e:
         return f"[ERROR: Transcription failed] {e}"
 
-# Hugging Face summarizer
 summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 
 def summarize_text(text, max_length=130, min_length=30, bullet_style=True):
     try:
         top_k = random.randint(40, 60)
         top_p = round(random.uniform(0.9, 0.95), 2)
-
         summary_list = summarizer(
             text,
             max_length=max_length,
@@ -48,7 +46,6 @@ def summarize_text(text, max_length=130, min_length=30, bullet_style=True):
             num_return_sequences=1
         )
         summary = summary_list[0]["summary_text"]
-
         if bullet_style:
             sentences = summary.split(". ")
             summary = "\n".join([f"• {s.strip()}" for s in sentences if s])
@@ -76,16 +73,9 @@ def send_email(recipient, subject, body, sender_email, sender_password):
 # -------------------------
 # Session state initialization
 # -------------------------
-if "uploaded_file" not in st.session_state:
-    st.session_state.uploaded_file = None
-if "transcription" not in st.session_state:
-    st.session_state.transcription = ""
-if "summary" not in st.session_state:
-    st.session_state.summary = ""
-if "transcribed" not in st.session_state:
-    st.session_state.transcribed = False
-if "summary_generated" not in st.session_state:
-    st.session_state.summary_generated = False
+for key in ["uploaded_file", "transcription", "summary", "transcribed", "summary_generated"]:
+    if key not in st.session_state:
+        st.session_state[key] = None if key == "uploaded_file" else False if "transcribed" in key or "summary_generated" in key else ""
 
 # -------------------------
 # Streamlit UI
@@ -103,6 +93,7 @@ bullet_mode = st.checkbox("Format Summary in Bullet Points", value=True)
 # -------------------------
 # Audio Upload Flow
 # -------------------------
+temp_file_path = None
 if uploaded_file:
     st.session_state.uploaded_file = uploaded_file
     temp_file_path = f"./temp_{uploaded_file.name}"
@@ -110,10 +101,9 @@ if uploaded_file:
         f.write(uploaded_file.getbuffer())
     st.audio(temp_file_path)
 
-    if not st.session_state.transcribed:
-        if st.button("Transcribe Audio"):
-            st.session_state.transcription = transcribe_audio(temp_file_path)
-            st.session_state.transcribed = True
+    if st.button("Transcribe Audio"):
+        st.session_state.transcription = transcribe_audio(temp_file_path)
+        st.session_state.transcribed = True
 
 # -------------------------
 # Text Input Flow
@@ -123,15 +113,14 @@ if text_input.strip() != "":
     st.session_state.transcribed = True
 
 # -------------------------
-# Show Summary button after transcription or text input
+# Generate / Regenerate Summary
 # -------------------------
 if st.session_state.transcribed:
-    if not st.session_state.summary_generated:
-        if st.button("Generate Summary"):
-            st.session_state.summary = summarize_text(
-                st.session_state.transcription, max_length=max_len, min_length=min_len, bullet_style=bullet_mode
-            )
-            st.session_state.summary_generated = True
+    if st.button("Generate Summary") or st.session_state.summary_generated:
+        st.session_state.summary = summarize_text(
+            st.session_state.transcription, max_length=max_len, min_length=min_len, bullet_style=bullet_mode
+        )
+        st.session_state.summary_generated = True
 
 # -------------------------
 # Display transcription
@@ -178,7 +167,7 @@ if st.session_state.summary_generated:
 # Cleanup temp files
 # -------------------------
 try:
-    if uploaded_file and os.path.exists(temp_file_path):
+    if temp_file_path and os.path.exists(temp_file_path):
         os.remove(temp_file_path)
 except:
     pass
