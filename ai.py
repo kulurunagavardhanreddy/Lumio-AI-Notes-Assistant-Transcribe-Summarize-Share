@@ -1,12 +1,13 @@
 import streamlit as st
 import os
 from transformers import pipeline
-from pydub import AudioSegment
 import whisper
 import re
 import smtplib
 from email.message import EmailMessage
 from datetime import datetime
+import soundfile as sf
+import numpy as np
 
 # -----------------------------
 # Load email credentials from secrets.toml
@@ -50,16 +51,20 @@ def log_action(message):
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {message}")
 
 def save_temp_audio(uploaded_file):
-    """Saves the uploaded audio file to a temporary location and converts it to WAV."""
-    temp_file = f"./temp_{uploaded_file.name}"
-    with open(temp_file, "wb") as f:
-        f.write(uploaded_file.getbuffer())
-
+    """
+    Saves the uploaded audio file to a temporary location and
+    converts it to WAV using the 'soundfile' library.
+    """
     try:
-        sound = AudioSegment.from_file(temp_file)
-        wav_path = f"./temp_{uploaded_file.name}.wav"
-        sound.export(wav_path, format="wav")
-        os.remove(temp_file)
+        # Read the audio data and metadata from the uploaded file
+        data, samplerate = sf.read(uploaded_file)
+        
+        # Define the path for the temporary WAV file
+        wav_path = f"./temp_{uploaded_file.name.split('.')[0]}.wav"
+        
+        # Write the audio data to a new WAV file
+        sf.write(wav_path, data, samplerate)
+        
         return wav_path
     except Exception as e:
         st.error(f"Error converting audio file: {e}")
@@ -104,14 +109,13 @@ def summarize_text(text, max_length=130, min_length=30, bullet_style=True):
         summary_chunks = []
         text_chunks = chunk_text(text, max_tokens=800)
         for chunk in text_chunks:
-            # The key change is here: do_sample=True
             summary_list = summarizer(
                 chunk,
                 max_length=max_length,
                 min_length=min_length,
-                do_sample=True, # This enables sampling for different outputs
-                temperature=0.7, # Controls the randomness (0.0 to 1.0)
-                top_p=0.9 # Controls the diversity of the output
+                do_sample=True,
+                temperature=0.7,
+                top_p=0.9
             )
             summary_chunks.append(summary_list[0]["summary_text"])
         combined_summary = " ".join(summary_chunks)
